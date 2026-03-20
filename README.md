@@ -168,6 +168,11 @@ Our premium model is **weekly**, simple, and risk-based.
 - selected plan tier
 - payout cap
 
+### Premium Formula
+```text
+Weekly Premium = Base Premium + Zone Risk Load + Shift Risk Load + Coverage Multiplier - Safe Profile Discount
+```
+
 ### Example Premium Calculation
 - Base Premium = ₹20
 - High rain-risk zone = +₹5
