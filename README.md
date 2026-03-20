@@ -168,306 +168,218 @@ Our premium model is **weekly**, simple, and risk-based.
 - selected plan tier
 - payout cap
 
-### Premium Formula
-Weekly Premium = Base Premium + Zone Risk Load + Shift Risk Load + Coverage Multiplier - Safe Profile Discount
+### Example Premium Calculation
+- Base Premium = ₹20
+- High rain-risk zone = +₹5
+- Evening peak exposure = +₹3
+- Higher coverage plan = +₹4
+- Safe profile discount = -₹2
 
-Example
+**Final Weekly Premium = ₹30**
 
-Base Premium = ₹20
+### Coverage Tiers
 
-High rain-risk zone = +₹5
+#### Lite
+- lower premium
+- fewer protected hours
+- lower payout cap
 
-Evening peak exposure = +₹3
+#### Smart
+- balanced premium and protection
+- recommended for average workers
 
-Higher coverage plan = +₹4
+#### Pro
+- higher premium
+- more protected hours
+- higher payout cap
 
-Safe profile discount = -₹2
+### Why Weekly?
+A weekly premium model is suitable because:
+- delivery workers often think in short earning cycles
+- risk exposure changes week to week
+- affordability is important
+- coverage can be flexible and adaptive
 
-Final Weekly Premium = ₹30
+---
 
-Coverage Tiers
-Lite
+## 6. Parametric Triggers
 
-lower premium
+GigShield AI uses **parametric triggers**, which means claims are linked to predefined external disruption events instead of requiring long manual documentation processes.
 
-fewer protected hours
+### Core Triggers
 
-lower payout cap
+#### Heavy Rain Trigger
+Activates when rainfall exceeds a threshold for a defined duration in the insured zone.
 
-Smart
+#### Flood / Waterlogging Trigger
+Activates when the zone becomes inaccessible or flood-risk becomes operationally significant.
 
-balanced premium and protection
+#### Extreme Heat Trigger
+Activates when the heat index crosses an unsafe threshold for outdoor delivery activity.
 
-Pro
+#### Severe AQI Trigger
+Activates when AQI becomes unsafe for sustained outdoor work.
 
-higher premium
+#### Curfew / Zone Closure Trigger
+Activates when temporary restrictions make delivery work impossible in the zone.
 
-more protected hours
+#### Platform Outage / Order Collapse Trigger
+Activates when a platform outage or sharp drop in order availability interrupts earning opportunities.
 
-higher payout cap
+### Why Parametric?
+- faster than traditional claims
+- low paperwork
+- better automation
+- smoother user experience
+- suitable for event-driven income loss protection
 
-Why Weekly?
+---
 
-A weekly model fits delivery workers better because:
+## 7. Why We Chose a Web Platform
 
-their earning cycle is short
+We chose to build **GigShield AI as a website**.
 
-risk exposure changes frequently
+### Justification
+- faster to design and demonstrate within hackathon timelines
+- judges can test it instantly without installation
+- worker onboarding, plan selection, claim tracking, and payout visibility can all be demonstrated clearly in a browser
+- dashboards, fraud review, analytics, and trigger monitoring are naturally suited to the web
+- a responsive website can work on both desktop and mobile browsers
 
-premiums remain affordable
+### Platform Structure
+- **Worker Portal:** responsive website
+- **Admin Dashboard:** web dashboard
 
-workers can choose coverage flexibly
+This gives us one unified platform for both worker-facing and admin-facing workflows.
 
-6. Parametric Triggers
+---
 
-This product uses parametric triggers, meaning payout is linked to predefined external events rather than long manual claim processes.
+## 8. AI/ML Integration Plan
 
-Core Triggers
+AI/ML is used in multiple parts of the workflow.
 
-Heavy Rain Trigger
-activates when rainfall exceeds a threshold for a defined period
+### 1. Premium Calculation
+AI helps estimate the weekly premium using:
+- zone risk
+- disruption probability
+- shift timing
+- expected claim likelihood
+- worker profile
 
-Flood / Waterlogging Trigger
-activates when the insured zone becomes inaccessible or flood-risk is high
-
-Extreme Heat Trigger
-activates when heat index exceeds safe outdoor working limits
-
-Severe AQI Trigger
-activates when AQI becomes unsafe for prolonged outdoor work
-
-Curfew / Zone Closure Trigger
-activates when a zone becomes temporarily inaccessible for delivery operations
-
-Platform Outage / Order Collapse Trigger
-activates when a platform outage or sudden order drop interrupts earning opportunity
-
-Why Parametric?
-
-faster than traditional claims
-
-less paperwork
-
-easier automation
-
-better worker experience
-
-good fit for event-driven income loss
-
-7. Why We Chose a Web Platform
-
-We chose to build GigShield AI as a website.
-
-Justification
-
-faster to design, build, and demonstrate during a hackathon
-
-judges can test it instantly without installing an app
-
-worker onboarding, plan selection, claim status, and payout visibility can all be shown clearly in a browser
-
-admin analytics, dashboards, fraud review, and trigger monitoring are better suited to web interfaces
-
-a responsive website can still work well on mobile browsers
-
-Platform Structure
-
-Worker Portal: responsive website
-
-Admin Dashboard: web dashboard
-
-This gives us one unified platform for both worker and admin workflows.
-
-8. AI/ML Integration Plan
-
-AI/ML is integrated into multiple parts of the workflow.
-
-1. Premium Calculation
-
-AI helps estimate weekly premium using:
-
-zone risk
-
-disruption probability
-
-shift timing
-
-claim likelihood
-
-worker profile
-
-2. Risk Forecasting
-
-The system predicts upcoming risk using:
-
-weather forecast
-
-seasonal conditions
-
-zone-level disruption history
-
-3. Fraud Detection
-
-AI/rule-based checks identify suspicious claims using:
-
-GPS inconsistency
-
-repeated abnormal claim patterns
-
-duplicate claims
-
-mismatch between claimed zone and actual activity
-
-suspicious behavior anomalies
-
-4. Income Loss Estimation
-
+### 2. Risk Forecasting
+The platform predicts short-term risk using:
+- weather forecast data
+- seasonal patterns
+- zone-level disruption history
+
+### 3. Fraud Detection
+AI and rule-based checks detect suspicious claims using:
+- GPS inconsistency
+- duplicate claim patterns
+- mismatch between working zone and claim zone
+- repeated abnormal claims
+- suspicious activity behavior
+
+### 4. Income Loss Estimation
 The system estimates likely lost earnings using:
+- average hourly income
+- disrupted work duration
+- shift and trigger overlap
+- validation confidence score
 
-average hourly income
-
-disrupted work duration
-
-overlap between shift time and trigger time
-
-confidence score
-
-5. Explainable Decisions
-
+### 5. Explainable Decisions
 The platform will show:
+- why a premium changed
+- why a trigger activated
+- why a claim was approved or flagged
 
-why this week’s premium changed
+---
 
-why a trigger activated
+## 9. Tech Stack
 
-why a claim was approved or flagged
+### Frontend
+- Next.js
+- React
+- Tailwind CSS
 
-9. Tech Stack
-Frontend
+### Backend
+- FastAPI
+- REST APIs
 
-Next.js
+### Database
+- PostgreSQL
+- Redis
 
-React
+### AI/ML
+- Python
+- scikit-learn
+- pandas
+- NumPy
 
-Tailwind CSS
+### External / Mock Integrations
+- Weather API
+- AQI API
+- simulated platform outage feed
+- mock payout system
+- map or risk visualization tools
 
-Backend
+---
 
-FastAPI
+## 10. Development Plan
 
-REST APIs
+### Phase 1: Ideation & Foundation
+- finalize persona and use cases
+- define application workflow
+- design weekly premium logic
+- define parametric triggers
+- plan AI/ML integration
+- prepare README
+- create initial prototype concept
+- record 2-minute strategy video
 
-Database
+### Phase 2: Build Core Workflow
+- build worker onboarding portal
+- build premium recommendation flow
+- implement trigger monitoring
+- implement auto-claim logic
+- create admin dashboard
+- add basic fraud rules
 
-PostgreSQL
+### Phase 3: Improve and Optimize
+- improve fraud detection
+- refine premium logic
+- add payout simulation
+- improve analytics and dashboards
+- test multiple disruption scenarios
 
-Redis
+---
 
-AI/ML
+## 11. Additional Relevant Points
 
-Python
+### Innovation Highlights
+- weekly income protection designed specifically for delivery workers
+- hyperlocal risk-based pricing
+- automated trigger-based claim processing
+- explainable AI decisions
+- responsive website for both workers and admins
+- reduced claim friction through parametric design
 
-scikit-learn
-
-pandas
-
-NumPy
-
-External / Mock Integrations
-
-Weather API
-
-AQI API
-
-simulated platform outage feed
-
-mock payout system
-
-map/risk visualization tools
-
-10. Development Plan
-Phase 1: Ideation & Foundation
-
-finalize persona and use cases
-
-define workflow
-
-design weekly premium logic
-
-define parametric triggers
-
-plan AI/ML integration
-
-prepare README
-
-create initial prototype concept
-
-record 2-minute strategy video
-
-Phase 2: Build Core Workflow
-
-build worker onboarding portal
-
-build premium recommendation flow
-
-implement trigger monitoring
-
-implement auto-claim logic
-
-create admin dashboard
-
-add basic fraud rules
-
-Phase 3: Improve and Optimize
-
-improve fraud detection
-
-refine premium model
-
-add payout simulation
-
-improve analytics and dashboards
-
-test multiple disruption scenarios
-
-11. Additional Relevant Points
-Innovation Highlights
-
-weekly income protection built specifically for delivery workers
-
-hyperlocal risk-based pricing
-
-automated trigger-based claims
-
-explainable AI logic
-
-responsive web platform for both workers and admins
-
-reduced claim friction through parametric design
-
-Prototype Scope for Phase 1
-
+### Prototype Scope for Phase 1
 For this phase, we plan to demonstrate:
+- worker persona and problem scenario
+- onboarding flow
+- plan recommendation logic
+- premium calculation model
+- trigger-to-payout workflow
+- dashboard concept
+- low-scope but clear website prototype
 
-worker persona and use case flow
+---
 
-onboarding concept
+## 12. Repository and Demo Links
 
-plan recommendation logic
+### Git Repository
+`PASTE_GITHUB_OR_GITLAB_LINK_HERE`
 
-premium calculation model
-
-trigger-to-payout workflow
-
-dashboard concept
-
-website prototype with minimal but clear scope
-
-12. Repository and Demo Links
-Git Repository
-
-PASTE_GITHUB_OR_GITLAB_LINK_HERE
-
-Phase 1 Demo Video
-
-PASTE_PUBLIC_VIDEO_LINK_HERE
+### Phase 1 Demo Video
+`PASTE_PUBLIC_VIDEO_LINK_HERE`
