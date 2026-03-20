@@ -534,7 +534,7 @@ With this addition, GigShield AI is no longer just a trigger-based payout platfo
 ## 13. Repository and Demo Links
 
 ### Git Repository
-`PASTE_GITHUB_OR_GITLAB_LINK_HERE`
+`(https://github.com/Vaishnav-365/GigShield.git)`
 
 ### Phase 1 Demo Video
 `PASTE_PUBLIC_VIDEO_LINK_HERE`
