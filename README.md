@@ -93,6 +93,8 @@ A platform API or simulated data feed shows a sudden drop in orders for a covere
 ---
 
 ## 4. Application Workflow
+![WhatsApp Image 2026-03-20 at 11 13 33 PM](https://github.com/user-attachments/assets/b952be8f-ed47-4aed-bc77-98e0c2274a6b)
+
 
 ### Step 1: User Onboarding
 The worker registers on the website and provides:
