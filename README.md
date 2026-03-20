@@ -19,7 +19,6 @@
 - [10. Development Plan](#10-development-plan)
 - [11. Additional Relevant Points](#11-additional-relevant-points)
 - [12. Adversarial Defense & Anti-Spoofing Strategy](#12-adversarial-defense--anti-spoofing-strategy)
-- [13. Repository and Demo Links](#12-repository-and-demo-links)
 
 ---
 
@@ -531,11 +530,3 @@ This adversarial defense approach becomes a major differentiator for GigShield A
 With this addition, GigShield AI is no longer just a trigger-based payout platform; it becomes a **fraud-aware, trust-scored, adversarially resilient parametric protection system** for delivery workers.
 
 ---
-
-## 13. Repository and Demo Links
-
-### Git Repository
-https://github.com/Vaishnav-365/GigShield.git
-
-### Phase 1 Demo Video
-`PASTE_PUBLIC_VIDEO_LINK_HERE`
