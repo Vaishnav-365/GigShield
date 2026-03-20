@@ -29,6 +29,8 @@ If a worker is unable to work because of external disruptions such as heavy rain
 
 Our solution focuses only on **income loss protection** and uses a **weekly premium model**, making it suitable for delivery workers with short earning cycles.
 
+![WhatsApp Image 2026-03-20 at 11 27 37 PM](https://github.com/user-attachments/assets/e75f5643-199b-46fc-932d-330a883cf02e)
+
 ---
 
 ## 2. Requirement Understanding
@@ -49,6 +51,7 @@ The product is designed specifically for delivery workers whose earnings stop im
 ---
 
 ## 3. Persona-Based Scenarios
+<img width="1249" height="707" alt="Screenshot 2026-03-20 at 11 27 28 PM" src="https://github.com/user-attachments/assets/8e74fdf5-19fe-4c51-bcf8-97bb67eb6f35" />
 
 ### Primary Persona: Arjun, Grocery Delivery Worker
 - Age: 24
@@ -177,13 +180,8 @@ Weekly Premium = Base Premium + Zone Risk Load + Shift Risk Load + Coverage Mult
 ```
 
 ### Example Premium Calculation
-- Base Premium = ₹20
-- High rain-risk zone = +₹5
-- Evening peak exposure = +₹3
-- Higher coverage plan = +₹4
-- Safe profile discount = -₹2
 
-**Final Weekly Premium = ₹30**
+<img width="798" height="865" alt="Screenshot 2026-03-20 at 11 25 33 PM" src="https://github.com/user-attachments/assets/47ac6bcd-55da-43a1-a007-bd2a42b4a5fe" />
 
 ### Coverage Tiers
 
@@ -263,6 +261,7 @@ This gives us one unified platform for both worker-facing and admin-facing workf
 ---
 
 ## 8. AI/ML Integration Plan
+![WhatsApp Image 2026-03-20 at 11 15 03 PM](https://github.com/user-attachments/assets/e948296a-f161-4ad3-a78b-e6ec733de8a5)
 
 AI/ML is used in multiple parts of the workflow.
 
