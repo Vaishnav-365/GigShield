@@ -1,221 +1,474 @@
-# GigShield AI  
-### AI-Powered Parametric Income Protection for Q-Commerce Delivery Workers
+# GigShield AI
+### AI-Powered Weekly Income Protection for Delivery Workers
+
+![Phase](https://img.shields.io/badge/Phase-1-blue)
+![Platform](https://img.shields.io/badge/Platform-Web-orange)
+![Insurance](https://img.shields.io/badge/Model-Parametric-purple)
+![AI/ML](https://img.shields.io/badge/AI%2FML-Integrated-red)
+
+## Table of Contents
+- [1. Introduction](#1-introduction)
+- [2. Requirement Understanding](#2-requirement-understanding)
+- [3. Persona-Based Scenarios](#3-persona-based-scenarios)
+- [4. Application Workflow](#4-application-workflow)
+- [5. Weekly Premium Model](#5-weekly-premium-model)
+- [6. Parametric Triggers](#6-parametric-triggers)
+- [7. Why We Chose a Web Platform](#7-why-we-chose-a-web-platform)
+- [8. AI/ML Integration Plan](#8-aiml-integration-plan)
+- [9. Tech Stack](#9-tech-stack)
+- [10. Development Plan](#10-development-plan)
+- [11. Additional Relevant Points](#11-additional-relevant-points)
+- [12. Repository and Demo Links](#12-repository-and-demo-links)
 
 ---
 
-## 1. Problem Statement
+## 1. Introduction
+**GigShield AI** is a web-based parametric insurance solution designed for delivery workers whose income depends on active working hours.  
+If a worker is unable to work because of external disruptions such as heavy rain, floods, extreme heat, severe AQI, curfews, or platform outages, the system automatically detects the event, validates coverage, estimates lost income, performs fraud checks, and initiates payout.
 
-India’s gig delivery workers depend on continuous working hours for their income. External disruptions such as heavy rain, extreme heat, pollution, curfews, or platform outages reduce their working time and lead to direct income loss.
-
-Currently, there is **no simple insurance solution** that protects workers against **loss of income caused by such external events**.
-
----
-
-## 2. Persona & Use Case
-
-### Persona: Arjun (Q-Commerce Delivery Partner)
-- Works for platforms like Zepto/Blinkit  
-- Operates in specific city zones  
-- Works during peak hours (lunch/evening)  
-- Income depends on completed deliveries  
-
-### Key Pain Points
-- Weather disruptions stop deliveries  
-- Zone closures block access  
-- Platform outages reduce orders  
-- No compensation for lost working hours  
+Our solution focuses only on **income loss protection** and uses a **weekly premium model**, making it suitable for delivery workers with short earning cycles.
 
 ---
 
-## 3. Solution Overview
+## 2. Requirement Understanding
+The problem we are solving is:
 
-**GigShield AI** is a **parametric insurance platform** that:
+Delivery workers often lose income due to events outside their control, but there is no simple, weekly, easy-to-access insurance product that protects them against this short-term income disruption.
 
-- Provides **weekly income protection plans**
-- Monitors **external disruption triggers**
-- Automatically **initiates claims**
-- Estimates **lost income**
-- Processes **instant/simulated payouts**
+Our solution addresses this by providing:
+- weekly insurance plans
+- automated trigger-based claim initiation
+- AI-assisted premium calculation
+- fraud detection
+- payout estimation
+- worker and admin dashboards
+
+The product is designed specifically for delivery workers whose earnings stop immediately when disruption happens.
 
 ---
 
-## 4. Workflow
+## 3. Persona-Based Scenarios
 
-1. **Onboarding**
-   - Worker provides basic details, zones, working hours, and income range  
+### Primary Persona: Arjun, Grocery Delivery Worker
+- Age: 24
+- Works for a q-commerce platform
+- Operates in 2–3 zones in the city
+- Works mostly during lunch and evening peak hours
+- Earns based on completed deliveries
+- Depends on stable weekly income
 
-2. **Risk Profiling**
-   - System evaluates risk using zone, shift timing, and historical disruption data  
+### Scenario 1: Heavy Rain During Evening Shift
+Arjun has purchased a weekly protection plan.  
+He usually works from **6 PM to 10 PM** in Zone A. On a particular day, heavy rainfall crosses the defined threshold from **7 PM to 9 PM**, and delivery activity drops sharply.
 
-3. **Plan Recommendation**
-   - Weekly plan suggested (Lite / Smart / Pro)  
+**What happens:**
+- the system detects the rain trigger
+- verifies that Arjun is covered this week
+- checks that the disruption happened in his working zone
+- confirms that the affected time overlaps with his usual shift
+- estimates lost earning hours
+- runs fraud checks
+- generates a payout
 
-4. **Policy Activation**
-   - Worker activates coverage for the week  
+### Scenario 2: Extreme Heat in Afternoon Slot
+Another delivery worker regularly works in the afternoon.  
+The heat index crosses the unsafe threshold for outdoor activity for 3 hours.
 
-5. **Trigger Monitoring**
-   - System tracks disruptions using APIs (weather, AQI, etc.)  
+**What happens:**
+- the heat trigger activates
+- covered workers in that zone are identified
+- work-loss duration is estimated
+- payout is calculated and processed
 
-6. **Claim Triggering**
-   - If conditions match:
-     - Worker active  
-     - Zone affected  
-     - Valid disruption  
+### Scenario 3: Platform Outage / Order Collapse
+A platform API or simulated data feed shows a sudden drop in orders for a covered zone for 90 minutes.
 
-7. **Payout Calculation**
-   - Lost hours × hourly income (within plan cap)  
+**What happens:**
+- the outage trigger is detected
+- active insured workers in that zone are identified
+- likely earning interruption is computed
+- payout process starts automatically
 
-8. **Fraud Check**
-   - Location + activity validation  
+---
 
-9. **Payout**
-   - Instant/simulated payout processed  
+## 4. Application Workflow
+
+### Step 1: User Onboarding
+The worker registers on the website and provides:
+- basic profile details
+- work zones
+- usual working hours
+- average weekly active hours
+- average earnings
+- payout details
+
+### Step 2: Risk Profiling
+The system builds the worker’s risk profile using:
+- operating zone
+- shift timings
+- expected disruption exposure
+- historical risk patterns
+- earning behavior
+
+### Step 3: Weekly Plan Recommendation
+The website recommends a suitable weekly plan:
+- Lite
+- Smart
+- Pro
+
+Each plan displays:
+- weekly premium
+- protected hours
+- maximum payout
+- covered disruption types
+
+### Step 4: Policy Activation
+The worker selects a plan and activates coverage for the week.
+
+### Step 5: Trigger Monitoring
+The platform continuously monitors external event data such as weather, AQI, local zone restrictions, and simulated platform outages.
+
+### Step 6: Claim Validation
+When a trigger occurs, the system checks:
+- whether the worker had active coverage
+- whether the worker’s insured zone is impacted
+- whether the affected time overlaps with expected work hours
+- whether fraud indicators are present
+
+### Step 7: Payout Estimation
+If the claim is valid, the system estimates:
+- lost earning hours
+- expected income loss
+- payout amount based on plan limits
+
+### Step 8: Dashboard Update
+The worker sees:
+- disruption detected
+- claim status
+- payout status
+- coverage summary
+
+The admin sees:
+- triggered events
+- claim volume
+- fraud flags
+- payout analytics
 
 ---
 
 ## 5. Weekly Premium Model
 
-### Objective
-- Simple  
-- Weekly-based  
-- Risk-aware  
-- Affordable  
+Our premium model is **weekly**, simple, and risk-based.
+
+### Inputs Used
+- worker’s average weekly active hours
+- primary delivery zone
+- disruption risk in that zone
+- time-slot risk
+- selected plan tier
+- payout cap
 
 ### Premium Formula
-Weekly Premium = Base + Zone Risk + Shift Risk + Coverage Factor − Discounts
+```text
+Weekly Premium = Base Premium + Zone Risk Load + Shift Risk Load + Coverage Multiplier - Safe Profile Discount
 
-### Inputs
-- Weekly working hours  
-- Operating zones  
-- Shift timing  
-- Historical disruption risk  
-- Coverage tier  
+Example
 
-### Example
-- Base: ₹19  
-- Zone risk: +₹5  
-- Shift risk: +₹3  
-- Coverage: +₹4  
-- Discount: −₹2  
+Base Premium = ₹20
 
-**Final Premium: ₹29/week**
+High rain-risk zone = +₹5
 
----
+Evening peak exposure = +₹3
 
-## 6. Parametric Triggers
+Higher coverage plan = +₹4
 
-The system uses predefined external triggers:
+Safe profile discount = -₹2
 
-- **Heavy Rain** → rainfall exceeds threshold  
-- **Flood/Waterlogging** → road inaccessibility  
-- **Extreme Heat** → unsafe temperature levels  
-- **Severe AQI** → unhealthy pollution levels  
-- **Curfew/Zone Closure** → restricted access  
-- **Platform Outage** → sudden drop in order activity  
+Final Weekly Premium = ₹30
 
-### Why Parametric?
-- No manual claims  
-- Faster payouts  
-- Easy automation  
-- Better user experience  
+Coverage Tiers
+Lite
 
----
+lower premium
 
-## 7. Platform Choice: Web Application
+fewer protected hours
 
-We are building a **Web-based platform** for Phase 1.
+lower payout cap
 
-### Justification
-- Faster to prototype and demonstrate  
-- Easier to integrate dashboards and analytics  
-- Suitable for showcasing workflows and simulations  
-- Can later extend to mobile  
+Smart
 
----
+balanced premium and protection
 
-## 8. AI/ML Integration Plan
+Pro
 
-### 1. Premium Calculation
-- Model predicts weekly premium based on risk factors  
-- Models: Random Forest / XGBoost (or rule-based for MVP)  
+higher premium
 
-### 2. Risk Prediction
-- Forecast disruption probability using:
-  - Weather data  
-  - Zone history  
-  - Seasonal patterns  
+more protected hours
 
-### 3. Fraud Detection
-- Detect anomalies such as:
-  - GPS spoofing  
-  - Duplicate claims  
-  - Unusual claim patterns  
+higher payout cap
 
-- Techniques:
-  - Isolation Forest  
-  - Rule-based validation  
+Why Weekly?
 
-### 4. Lost Income Estimation
-- Uses:
-  - Average hourly earnings  
-  - Impacted time window  
-  - Disruption confidence  
+A weekly model fits delivery workers better because:
 
----
+their earning cycle is short
 
-## 9. Tech Stack
+risk exposure changes frequently
 
-### Frontend (Web)
-- React / Next.js  
+premiums remain affordable
 
-### Backend
-- FastAPI / Node.js  
+workers can choose coverage flexibly
 
-### Database
-- PostgreSQL  
-- Redis (for caching/events)  
+6. Parametric Triggers
 
-### AI/ML
-- Python  
-- scikit-learn  
-- pandas  
+This product uses parametric triggers, meaning payout is linked to predefined external events rather than long manual claim processes.
 
-### Integrations (Mock/APIs)
-- Weather API  
-- AQI API  
-- Traffic/zone APIs (mock)  
-- Platform activity simulation  
-- Payment gateway (sandbox)  
+Core Triggers
 
----
+Heavy Rain Trigger
+activates when rainfall exceeds a threshold for a defined period
 
-## 10. Development Plan
+Flood / Waterlogging Trigger
+activates when the insured zone becomes inaccessible or flood-risk is high
 
-### Phase 1: Ideation & Foundation
-- Persona definition  
-- Workflow design  
-- Premium logic  
-- Trigger definitions  
-- Wireframes & architecture  
+Extreme Heat Trigger
+activates when heat index exceeds safe outdoor working limits
 
-### Phase 2: Automation & Protection
-- Registration & policy system  
-- Dynamic premium calculation  
-- Trigger integration (3–5 APIs)  
-- Auto-claim logic  
+Severe AQI Trigger
+activates when AQI becomes unsafe for prolonged outdoor work
 
-### Phase 3: Scale & Optimise
-- Fraud detection improvements  
-- Payout simulation  
-- Analytics dashboard  
-- End-to-end testing  
+Curfew / Zone Closure Trigger
+activates when a zone becomes temporarily inaccessible for delivery operations
 
----
+Platform Outage / Order Collapse Trigger
+activates when a platform outage or sudden order drop interrupts earning opportunity
 
-## 11. Key Innovation
+Why Parametric?
 
-- Weekly insurance tailored for gig workers  
-- Hyperlocal risk-based pricing  
-- Coverage in **protected working hours**  
-- Fully automated claim system  
-- AI-driven pricing and fraud detection  
+faster than traditional claims
+
+less paperwork
+
+easier automation
+
+better worker experience
+
+good fit for event-driven income loss
+
+7. Why We Chose a Web Platform
+
+We chose to build GigShield AI as a website.
+
+Justification
+
+faster to design, build, and demonstrate during a hackathon
+
+judges can test it instantly without installing an app
+
+worker onboarding, plan selection, claim status, and payout visibility can all be shown clearly in a browser
+
+admin analytics, dashboards, fraud review, and trigger monitoring are better suited to web interfaces
+
+a responsive website can still work well on mobile browsers
+
+Platform Structure
+
+Worker Portal: responsive website
+
+Admin Dashboard: web dashboard
+
+This gives us one unified platform for both worker and admin workflows.
+
+8. AI/ML Integration Plan
+
+AI/ML is integrated into multiple parts of the workflow.
+
+1. Premium Calculation
+
+AI helps estimate weekly premium using:
+
+zone risk
+
+disruption probability
+
+shift timing
+
+claim likelihood
+
+worker profile
+
+2. Risk Forecasting
+
+The system predicts upcoming risk using:
+
+weather forecast
+
+seasonal conditions
+
+zone-level disruption history
+
+3. Fraud Detection
+
+AI/rule-based checks identify suspicious claims using:
+
+GPS inconsistency
+
+repeated abnormal claim patterns
+
+duplicate claims
+
+mismatch between claimed zone and actual activity
+
+suspicious behavior anomalies
+
+4. Income Loss Estimation
+
+The system estimates likely lost earnings using:
+
+average hourly income
+
+disrupted work duration
+
+overlap between shift time and trigger time
+
+confidence score
+
+5. Explainable Decisions
+
+The platform will show:
+
+why this week’s premium changed
+
+why a trigger activated
+
+why a claim was approved or flagged
+
+9. Tech Stack
+Frontend
+
+Next.js
+
+React
+
+Tailwind CSS
+
+Backend
+
+FastAPI
+
+REST APIs
+
+Database
+
+PostgreSQL
+
+Redis
+
+AI/ML
+
+Python
+
+scikit-learn
+
+pandas
+
+NumPy
+
+External / Mock Integrations
+
+Weather API
+
+AQI API
+
+simulated platform outage feed
+
+mock payout system
+
+map/risk visualization tools
+
+10. Development Plan
+Phase 1: Ideation & Foundation
+
+finalize persona and use cases
+
+define workflow
+
+design weekly premium logic
+
+define parametric triggers
+
+plan AI/ML integration
+
+prepare README
+
+create initial prototype concept
+
+record 2-minute strategy video
+
+Phase 2: Build Core Workflow
+
+build worker onboarding portal
+
+build premium recommendation flow
+
+implement trigger monitoring
+
+implement auto-claim logic
+
+create admin dashboard
+
+add basic fraud rules
+
+Phase 3: Improve and Optimize
+
+improve fraud detection
+
+refine premium model
+
+add payout simulation
+
+improve analytics and dashboards
+
+test multiple disruption scenarios
+
+11. Additional Relevant Points
+Innovation Highlights
+
+weekly income protection built specifically for delivery workers
+
+hyperlocal risk-based pricing
+
+automated trigger-based claims
+
+explainable AI logic
+
+responsive web platform for both workers and admins
+
+reduced claim friction through parametric design
+
+Prototype Scope for Phase 1
+
+For this phase, we plan to demonstrate:
+
+worker persona and use case flow
+
+onboarding concept
+
+plan recommendation logic
+
+premium calculation model
+
+trigger-to-payout workflow
+
+dashboard concept
+
+website prototype with minimal but clear scope
+
+12. Repository and Demo Links
+Git Repository
+
+PASTE_GITHUB_OR_GITLAB_LINK_HERE
+
+Phase 1 Demo Video
+
+PASTE_PUBLIC_VIDEO_LINK_HERE
