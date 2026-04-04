@@ -1,5 +1,6 @@
 import uuid
 from sqlalchemy import Column, String, Float, Integer, Boolean, DateTime, ARRAY
+from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func
 from app.database import Base
@@ -16,6 +17,9 @@ class User(Base):
     is_admin = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
+
+    policies = relationship("Policy", back_populates="worker")
+    
     # Worker profile fields — stored here for simplicity
     # Zones: list of zone names e.g. ["Zone A", "Zone B"]
     work_zones = Column(ARRAY(String), nullable=True)
