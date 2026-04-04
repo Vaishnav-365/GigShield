@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   Shield, Zap, AlertTriangle, ChevronRight,
-  CheckCircle, Clock, IndianRupee
+  CheckCircle, Clock, IndianRupee, Users
 } from "lucide-react";
 import { getCurrentUser, isLoggedIn } from "@/lib/auth";
 import {
@@ -15,6 +15,10 @@ import {
 } from "@/lib/api";
 import TriggerBadge from "@/components/TriggerBadge";
 import ClaimTracker from "@/components/ClaimTracker";
+import { gigscoreApi, GigScore } from "@/lib/api";
+import GigScoreCard from "@/components/GigScoreCard";
+import { zoneReportApi, ZoneReport } from "@/lib/api";
+import PeerValidationBadge from "@/components/PeerValidationBadge";
 
 function StatCard({
   label, value, sub, icon: Icon, color,
@@ -43,6 +47,8 @@ export default function DashboardPage() {
   const [claims, setClaims] = useState<Claim[]>([]);
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
+  const [gigscore, setGigscore] = useState<GigScore | null>(null);
+  const [zoneReports, setZoneReports] = useState<ZoneReport[]>([]);
 
   useEffect(() => {
     setMounted(true);
@@ -52,11 +58,27 @@ export default function DashboardPage() {
       premiumApi.myPolicy().catch(() => null),
       triggerApi.active().catch(() => MOCK_TRIGGERS.filter(t => t.is_active)).then(data => Array.isArray(data) ? data : (data as any).events || []),
       claimApi.list().catch(() => MOCK_CLAIMS),
-    ]).then(([u, p, t, c]) => {
+      gigscoreApi.get().catch(() => null),
+    ]).then(([u, p, t, c, g]) => {
       setUser(u);
       setPolicy(p);
       setTriggers(t);
+      // Fetch peer validation for active triggers in worker's zones
+      const workerZones = u?.work_zones || [];
+      const activeTriggerList = Array.isArray(t) ? t.filter((tr: any) => tr.is_active) : [];
+      const uniqueCombinations = activeTriggerList
+        .filter((tr: any) => workerZones.some((z: string) => z === tr.zone))
+        .slice(0, 3);
+
+      Promise.all(
+        uniqueCombinations.map((tr: any) =>
+          zoneReportApi.get(tr.zone, tr.trigger_type).catch(() => null)
+        )
+      ).then(reports => {
+        setZoneReports(reports.filter(Boolean) as ZoneReport[]);
+      });
       setClaims(c);
+      setGigscore(g);
     }).finally(() => setLoading(false));
   }, []);
 
@@ -224,6 +246,31 @@ export default function DashboardPage() {
             </div>
           )}
         </div>
+
+        {/* Peer Validation */}
+        {zoneReports.length > 0 && (
+          <div className="lg:col-span-2 rounded-2xl border border-slate-800 bg-slate-900 p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Users className="h-4 w-4 text-sky-400" />
+              <h2 className="font-display text-lg font-bold text-white">Community Reports</h2>
+              <span className="rounded-full bg-slate-800 px-2.5 py-1 text-xs text-slate-400">
+                {zoneReports.length} active
+              </span>
+            </div>
+            <div className="space-y-3">
+              {zoneReports.map((report, i) => (
+                <PeerValidationBadge key={i} report={report} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* GigScore */}
+        {gigscore && (
+          <div className="lg:col-span-2">
+            <GigScoreCard score={gigscore} />
+          </div>
+        )}
 
         {/* Recent Claims */}
         <div className="lg:col-span-2 rounded-2xl border border-slate-800 bg-slate-900 p-6">

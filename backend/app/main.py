@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
-from app.routers import auth, claims, premium, policies
+from app.routers import auth, claims, premium, policies, gigscore
 from app.routers import triggers
 from app.database import engine, Base
 from app.services.trigger_service import run_all_triggers
@@ -46,6 +46,7 @@ app.include_router(premium.router)
 app.include_router(policies.router)
 app.include_router(claims.router)
 app.include_router(triggers.router)
+app.include_router(gigscore.router)
 
 @app.get("/health")
 def health():

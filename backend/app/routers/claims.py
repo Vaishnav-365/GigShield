@@ -81,3 +81,33 @@ def get_all_claims(
         raise HTTPException(status_code=403, detail="Admin only")
     claims = db.query(Claim).order_by(Claim.created_at.desc()).all()
     return claims
+
+@router.get("/public/zone-report", response_model=None)
+def zone_report(
+    zone: str,
+    trigger_type: str,
+    db: Session = Depends(get_db)
+):
+    from datetime import datetime, timedelta
+    cutoff = datetime.utcnow() - timedelta(hours=24)
+    
+    count = db.query(Claim).filter(
+        Claim.zone == zone,
+        Claim.trigger_type == trigger_type,
+        Claim.created_at >= cutoff,
+        Claim.status.in_(["approved", "green", "amber", "pending"])
+    ).count()
+
+    affected_zones = db.query(Claim.zone).filter(
+        Claim.trigger_type == trigger_type,
+        Claim.created_at >= cutoff,
+        Claim.status.in_(["approved", "green", "amber", "pending"])
+    ).distinct().count()
+
+    return {
+        "zone": zone,
+        "trigger_type": trigger_type,
+        "workers_affected": count,
+        "zones_affected": affected_zones,
+        "severity": "high" if count >= 5 else "medium" if count >= 2 else "low"
+    }

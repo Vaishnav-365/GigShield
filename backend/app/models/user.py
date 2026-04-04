@@ -32,5 +32,6 @@ class User(Base):
     avg_weekly_hours = Column(Float, nullable=True)
     # Average hourly earnings in INR
     avg_hourly_earnings = Column(Float, nullable=True)
+    gigscore = Column(Float, default=50.0)
     # Platform they deliver for
     platform = Column(String, nullable=True)

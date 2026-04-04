@@ -159,8 +159,12 @@ export interface TriggerEvent {
 }
 
 export const triggerApi = {
-  active: () => request<TriggerEvent[]>("/api/triggers/active"),
-  history: () => request<TriggerEvent[]>("/api/triggers/history"),
+  active: () =>
+    request<any>("/api/triggers/active")
+      .then(data => Array.isArray(data) ? data : (data.events || [])),
+  history: () =>
+    request<any>("/api/triggers/history")
+      .then(data => Array.isArray(data) ? data : (data.events || [])),
 };
 
 // ─── CLAIMS ───────────────────────────────────────────────────────────────
@@ -176,6 +180,28 @@ export interface Claim {
   estimated_payout: number;
   created_at: string;
 }
+
+export interface GigScore {
+  score: number;
+  tier: string;
+  tier_color: string;
+  discount_pct: number;
+  total_claims: number;
+  approved_claims: number;
+  flagged_claims: number;
+  breakdown: {
+    base: number;
+    approved_bonus: number;
+    history_bonus: number;
+    flag_penalty: number;
+    clean_recent_bonus: number;
+  };
+}
+
+export const gigscoreApi = {
+  get: () => request<GigScore>("/api/workers/gigscore"),
+  recalculate: () => request<GigScore>("/api/workers/gigscore/recalculate", { method: "POST" }),
+};
 
 export const claimApi = {
   list: () => request<Claim[]>("/api/claims/"),
@@ -289,4 +315,17 @@ export const MOCK_PREMIUM: PremiumCalculation = {
     safe_profile_discount: 8,
     final_premium: 99,
   },
+};
+
+export interface ZoneReport {
+  zone: string;
+  trigger_type: string;
+  workers_affected: number;
+  zones_affected: number;
+  severity: string;
+}
+
+export const zoneReportApi = {
+  get: (zone: string, trigger_type: string) =>
+    request<ZoneReport>(`/api/claims/public/zone-report?zone=${encodeURIComponent(zone)}&trigger_type=${encodeURIComponent(trigger_type)}`),
 };
