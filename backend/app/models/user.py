@@ -20,6 +20,8 @@ class User(Base):
 
     policies = relationship("Policy", back_populates="worker")
     
+    claims = relationship("Claim", back_populates="worker")
+    
     # Worker profile fields — stored here for simplicity
     # Zones: list of zone names e.g. ["Zone A", "Zone B"]
     work_zones = Column(ARRAY(String), nullable=True)
