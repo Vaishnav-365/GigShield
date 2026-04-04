@@ -71,3 +71,13 @@ def simulate_trigger(
             for c in claims
         ]
     }
+
+@router.get("/admin/all", response_model=None)
+def get_all_claims(
+    current_user: User = Depends(get_current_user_dep),
+    db: Session = Depends(get_db)
+):
+    if not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Admin only")
+    claims = db.query(Claim).order_by(Claim.created_at.desc()).all()
+    return claims

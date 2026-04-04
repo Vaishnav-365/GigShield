@@ -41,35 +41,45 @@ export default function AdminPage() {
   const [triggers, setTriggers] = useState<TriggerEvent[]>([]);
   const [claims, setClaims] = useState<Claim[]>([]);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [updatingClaim, setUpdatingClaim] = useState<number | null>(null);
+  const [updatingClaim, setUpdatingClaim] = useState<string | null>(null);
 
   const load = async (showRefresh = false) => {
-    if (showRefresh) setRefreshing(true);
-    try {
-      const [t, c] = await Promise.all([
-        triggerApi.history().catch(() => MOCK_TRIGGERS),
-        claimApi.list().catch(() => MOCK_CLAIMS),
-      ]);
-      setTriggers(t);
-      setClaims(c);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  };
+  if (showRefresh) setRefreshing(true);
+  try {
+    const [t, c] = await Promise.all([
+      triggerApi.history().catch(() => MOCK_TRIGGERS),
+      claimApi.listAll().catch(() => claimApi.list()).catch(() => MOCK_CLAIMS),
+    ]);
+    setTriggers(Array.isArray(t) ? t : (t as any).events || []);
+    setClaims(Array.isArray(c) ? c : []);
+  } finally {
+    setLoading(false);
+    setRefreshing(false);
+  }
+};
 
   useEffect(() => {
+    setMounted(true);
     if (!isLoggedIn()) { router.push("/login"); return; }
     getCurrentUser().then(u => {
       if (!u?.is_admin) {
-        // Show admin page with mock data for demo
+        router.push("/dashboard");
       }
     });
     load();
   }, []);
 
-  const handleStatusChange = async (claimId: number, status: string) => {
+  if (!mounted || loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="h-8 w-8 rounded-full border-2 border-sky-500 border-t-transparent animate-spin" />
+      </div>
+    );
+  }
+
+  const handleStatusChange = async (claimId: string, status: string) => {
     setUpdatingClaim(claimId);
     try {
       const updated = await claimApi.updateStatus(claimId, status);
@@ -81,33 +91,29 @@ export default function AdminPage() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="h-8 w-8 rounded-full border-2 border-sky-500 border-t-transparent animate-spin" />
-      </div>
-    );
-  }
+  const safeTriggers = Array.isArray(triggers) ? triggers : [];
+  const safeClaims = Array.isArray(claims) ? claims : [];
 
-  const totalPayout = claims
+  const totalPayout = safeClaims
     .filter(c => c.status === "approved" || c.status === "green")
-    .reduce((s, c) => s + c.payout_amount, 0);
+    .reduce((s, c) => s + (Number(c.estimated_payout) || 0), 0);
 
-  const fraudFlags = claims.filter(c => c.status === "red").length;
-  const pendingReview = claims.filter(c => c.status === "amber").length;
-  const activeTriggers = triggers.filter(t => t.is_active).length;
+  const fraudFlags = safeClaims.filter(c => c.status === "red").length;
+  const pendingReview = safeClaims.filter(c => c.status === "amber").length;
+  const activeTriggers = safeTriggers.filter(t => t.is_active).length;
+  const approvedClaims = safeClaims.filter(c => c.status === "green" || c.status === "approved");
 
   const stats = [
     { label: "Active Triggers", value: String(activeTriggers), icon: Zap, color: "bg-sky-500/15 text-sky-400" },
-    { label: "Total Claims", value: String(claims.length), icon: Users, color: "bg-slate-800 text-slate-300" },
+    { label: "Total Claims", value: String(safeClaims.length), icon: Users, color: "bg-slate-800 text-slate-300" },
     { label: "Fraud Flags", value: String(fraudFlags), icon: ShieldAlert, color: "bg-rose-500/15 text-rose-400" },
     { label: "Pending Review", value: String(pendingReview), icon: Clock, color: "bg-amber-500/15 text-amber-400" },
     { label: "Total Payout", value: `₹${totalPayout.toLocaleString()}`, icon: IndianRupee, color: "bg-emerald-500/15 text-emerald-400" },
-    { label: "Auto Approved", value: String(claims.filter(c => c.status === "green" || c.status === "approved").length), icon: CheckCircle, color: "bg-emerald-500/15 text-emerald-400" },
+    { label: "Auto Approved", value: String(approvedClaims.length), icon: CheckCircle, color: "bg-emerald-500/15 text-emerald-400" },
   ];
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 animate-fade-in">
+    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
       <div className="flex items-center justify-between mb-8">
         <div>
           <div className="inline-flex items-center gap-2 rounded-full border border-rose-500/30 bg-rose-500/10 px-3 py-1 text-xs font-semibold text-rose-400 mb-2">
@@ -145,11 +151,11 @@ export default function AdminPage() {
           <h2 className="font-display text-lg font-bold text-white mb-5">
             Trigger Events
             <span className="ml-2 rounded-full bg-slate-800 px-2 py-0.5 text-xs text-slate-400 font-normal">
-              {triggers.length} total
+              {safeTriggers.length} total
             </span>
           </h2>
           <div className="space-y-3 max-h-96 overflow-y-auto pr-1">
-            {triggers.map(t => (
+            {safeTriggers.map(t => (
               <TriggerBadge key={t.id} trigger={t} />
             ))}
           </div>
@@ -164,10 +170,10 @@ export default function AdminPage() {
             </span>
           </h2>
           <div className="space-y-3 max-h-96 overflow-y-auto pr-1">
-            {claims.length === 0 ? (
+            {safeClaims.length === 0 ? (
               <p className="text-slate-500 text-sm text-center py-8">No claims yet</p>
             ) : (
-              claims.map(claim => (
+              safeClaims.map(claim => (
                 <div
                   key={claim.id}
                   className={`rounded-xl border p-4 ${STATUS_STYLES[claim.status] || STATUS_STYLES.amber}`}
@@ -177,7 +183,7 @@ export default function AdminPage() {
                       <p className="text-sm font-semibold text-white capitalize">
                         {(claim.trigger_type || "trigger").replace(/_/g, " ")} — {claim.zone || "Unknown zone"}
                       </p>
-                      <p className="text-xs text-slate-500">{formatDate(claim.created_at)} · Worker #{claim.worker_id}</p>
+                      <p className="text-xs text-slate-500">{formatDate(claim.created_at)}</p>
                     </div>
                     <span className={`rounded-full border px-2 py-0.5 text-xs font-semibold flex-shrink-0 ${STATUS_STYLES[claim.status]}`}>
                       {STATUS_LABELS[claim.status] || claim.status}
@@ -189,11 +195,10 @@ export default function AdminPage() {
                       {Math.round(claim.trust_score * 100)}%
                     </strong></span>
                     <span>Payout: <strong className="text-white">
-                      {claim.payout_amount > 0 ? `₹${claim.payout_amount}` : "Pending"}
+                      {(Number(claim.estimated_payout) || 0) > 0 ? `₹${Number(claim.estimated_payout).toLocaleString()}` : "Pending"}
                     </strong></span>
                   </div>
 
-                  {/* Trust bar */}
                   <div className="h-1 w-full rounded-full bg-slate-800 mb-3">
                     <div
                       className={`h-full rounded-full ${claim.trust_score > 0.7 ? "bg-emerald-500" : claim.trust_score >= 0.4 ? "bg-amber-500" : "bg-rose-500"}`}
@@ -201,7 +206,6 @@ export default function AdminPage() {
                     />
                   </div>
 
-                  {/* Admin actions */}
                   {(claim.status === "amber" || claim.status === "red") && (
                     <div className="flex gap-2">
                       <button
@@ -235,10 +239,22 @@ export default function AdminPage() {
         </h2>
         <div className="grid sm:grid-cols-4 gap-4">
           {[
-            { label: "Avg Trust Score", value: claims.length ? `${Math.round(claims.reduce((s,c)=>s+c.trust_score,0)/claims.length*100)}%` : "—" },
-            { label: "Auto-Approval Rate", value: claims.length ? `${Math.round(claims.filter(c=>c.status==="green"||c.status==="approved").length/claims.length*100)}%` : "—" },
-            { label: "Fraud Flag Rate", value: claims.length ? `${Math.round(fraudFlags/claims.length*100)}%` : "—" },
-            { label: "Avg Payout", value: totalPayout && claims.filter(c=>c.payout_amount>0).length ? `₹${Math.round(totalPayout/claims.filter(c=>c.payout_amount>0).length)}` : "—" },
+            {
+              label: "Avg Trust Score",
+              value: safeClaims.length ? `${Math.round(safeClaims.reduce((s, c) => s + c.trust_score, 0) / safeClaims.length * 100)}%` : "—"
+            },
+            {
+              label: "Auto-Approval Rate",
+              value: safeClaims.length ? `${Math.round(approvedClaims.length / safeClaims.length * 100)}%` : "—"
+            },
+            {
+              label: "Fraud Flag Rate",
+              value: safeClaims.length ? `${Math.round(fraudFlags / safeClaims.length * 100)}%` : "—"
+            },
+            {
+              label: "Avg Payout",
+              value: approvedClaims.length ? `₹${Math.round(totalPayout / approvedClaims.length)}` : "—"
+            },
           ].map(({ label, value }) => (
             <div key={label} className="rounded-xl bg-slate-800 p-4">
               <p className="font-display text-2xl font-bold text-white">{value}</p>

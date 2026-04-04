@@ -50,7 +50,7 @@ export default function DashboardPage() {
     Promise.all([
       getCurrentUser(),
       premiumApi.myPolicy().catch(() => null),
-      triggerApi.active().catch(() => MOCK_TRIGGERS.filter(t => t.is_active)),
+      triggerApi.active().catch(() => MOCK_TRIGGERS.filter(t => t.is_active)).then(data => Array.isArray(data) ? data : (data as any).events || []),
       claimApi.list().catch(() => MOCK_CLAIMS),
     ]).then(([u, p, t, c]) => {
       setUser(u);
@@ -72,11 +72,11 @@ export default function DashboardPage() {
   }
 
   const totalPayout = claims
-    .filter(c => c.status === "approved" || c.status === "green")
-    .reduce((s, c) => s + (c.estimated_payout || 0), 0);
+  .filter(c => c.status === "approved" || c.status === "green")
+  .reduce((s, c) => s + (Number(c.estimated_payout) || 0), 0);
 
   const activeClaims = claims.filter(c => c.status === "amber" || c.status === "pending").length;
-  const myZoneTriggers = triggers.filter(t =>
+  const myZoneTriggers = (Array.isArray(triggers) ? triggers : []).filter(t =>
     user?.work_zones?.some(z => z === t.zone) && t.is_active
   );
 
@@ -130,7 +130,7 @@ export default function DashboardPage() {
         />
         <StatCard
           label="Total Payout"
-          value={`₹${totalPayout.toLocaleString()}`}
+          value={`₹${isNaN(totalPayout) ? 0 : totalPayout.toLocaleString()}`}
           sub="This week"
           icon={IndianRupee}
           color="bg-emerald-500/15 text-emerald-400"
@@ -144,7 +144,7 @@ export default function DashboardPage() {
         />
         <StatCard
           label="Active Triggers"
-          value={String(triggers.filter(t => t.is_active).length)}
+          value={String((Array.isArray(triggers) ? triggers : []).filter(t => t.is_active).length)}
           sub="In monitored zones"
           icon={Zap}
           color="bg-rose-500/15 text-rose-400"
@@ -211,14 +211,14 @@ export default function DashboardPage() {
               {triggers.filter(t => t.is_active).length} active
             </span>
           </div>
-          {triggers.filter(t => t.is_active).length === 0 ? (
+          {(Array.isArray(triggers) ? triggers : []).filter(t => t.is_active).length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8 text-center">
               <CheckCircle className="h-10 w-10 text-slate-700 mb-3" />
               <p className="text-slate-400">All clear — no active disruptions</p>
             </div>
           ) : (
             <div className="space-y-3">
-              {triggers.filter(t => t.is_active).slice(0, 3).map(t => (
+              {(Array.isArray(triggers) ? triggers : []).filter(t => t.is_active).slice(0, 3).map(t => (
                 <TriggerBadge key={t.id} trigger={t} />
               ))}
             </div>

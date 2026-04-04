@@ -52,9 +52,9 @@ export default function ClaimsPage() {
     total: claims.length,
     approved: claims.filter(c => c.status === "approved" || c.status === "green").length,
     pending: claims.filter(c => c.status === "amber").length,
-    totalPayout: claims
-      .filter(c => c.status === "approved" || c.status === "green")
-      .reduce((s, c) => s + c.payout_amount, 0),
+    totalPayout : claims
+    .filter(c => c.status === "approved" || c.status === "green")
+    .reduce((s, c) => s + (Number(c.estimated_payout) || 0), 0),
   };
 
   if (loading) {
@@ -87,7 +87,7 @@ export default function ClaimsPage() {
         {[
           { label: "Total Claims", value: stats.total },
           { label: "Approved", value: stats.approved },
-          { label: "Total Payout", value: `₹${stats.totalPayout.toLocaleString()}` },
+          { label: "Total Payout", value: `₹${isNaN(stats.totalPayout) ? 0 : stats.totalPayout.toLocaleString()}`},
         ].map(({ label, value }) => (
           <div key={label} className="rounded-xl border border-slate-800 bg-slate-900 p-4 text-center">
             <p className="font-display text-xl font-bold text-white">{value}</p>

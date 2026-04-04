@@ -7,8 +7,10 @@ from alembic import context
 
 from app.models.user import Base
 from app.models.trigger import TriggerEvent
-from app.database import Base
-
+from app.models.user import Base
+from app.models.policy import Policy, PremiumLog
+from app.models.claim import Claim, Payout
+from app.models.trigger import TriggerEvent
 target_metadata = Base.metadata
 
 # this is the Alembic Config object, which provides

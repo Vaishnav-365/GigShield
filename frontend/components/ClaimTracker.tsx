@@ -93,8 +93,10 @@ export default function ClaimTracker({ claims }: Props) {
               <TrustBar score={claim.trust_score} />
               <div className="text-right">
                 <p className="text-xs text-slate-500">Payout</p>
-                <p className={`font-bold ${claim.payout_amount > 0 ? "text-emerald-400" : "text-slate-500"}`}>
-                  {claim.payout_amount > 0 ? `₹${claim.payout_amount.toLocaleString()}` : "Pending"}
+                <p className={`font-bold ${(Number(claim.estimated_payout) || 0) > 0 ? "text-emerald-400" : "text-slate-500"}`}>
+                  {(Number(claim.estimated_payout) || 0) > 0 
+                    ? `₹${Number(claim.estimated_payout).toLocaleString()}` 
+                    : "Pending"}
                 </p>
               </div>
             </div>

@@ -179,6 +179,7 @@ export interface Claim {
 
 export const claimApi = {
   list: () => request<Claim[]>("/api/claims/"),
+  listAll: () => request<Claim[]>("/api/claims/admin/all"),
   get: (id: string) => request<Claim>(`/api/claims/${id}`),
   updateStatus: (id: string, status: string) =>
     request<Claim>(`/api/claims/${id}/status`, {
