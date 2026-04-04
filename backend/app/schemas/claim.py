@@ -1,11 +1,12 @@
 from pydantic import BaseModel
 from typing import Optional, Dict, Any
 import datetime
+import uuid
 
 class ClaimResponse(BaseModel):
-    id: int
-    worker_id: int
-    policy_id: Optional[int]
+    id: uuid.UUID
+    worker_id: uuid.UUID
+    policy_id: Optional[uuid.UUID]
     trigger_type: str
     zone: str
     lost_hours: float
@@ -20,12 +21,12 @@ class ClaimResponse(BaseModel):
         from_attributes = True
 
 class ClaimStatusUpdate(BaseModel):
-    status: str   # "approved", "rejected", "flagged"
+    status: str
 
 class PayoutResponse(BaseModel):
-    id: int
-    claim_id: int
-    worker_id: int
+    id: uuid.UUID
+    claim_id: uuid.UUID
+    worker_id: uuid.UUID
     amount: float
     status: str
     payment_ref: Optional[str]

@@ -12,12 +12,14 @@ import { UserProfile } from "@/lib/api";
 import PlanCard from "@/components/PlanCard";
 
 function PremiumBreakdown({ calc }: { calc: PremiumCalculation }) {
+  const b = calc.breakdown;
+  if (!b) return null;
   const rows = [
-    { label: "Base Premium", value: calc.base_premium, sign: "+" },
-    { label: "Zone Risk Load", value: calc.zone_risk_load, sign: "+" },
-    { label: "Shift Risk Load", value: calc.shift_risk_load, sign: "+" },
-    { label: "Coverage Multiplier", value: calc.coverage_multiplier, sign: "+" },
-    { label: "Safe Profile Discount", value: calc.safe_profile_discount, sign: "−" },
+    { label: "Base Premium", value: b.base_premium, sign: "+" },
+    { label: "Zone Risk Load", value: b.zone_risk_load, sign: "+" },
+    { label: "Shift Risk Load", value: b.shift_risk_load, sign: "+" },
+    { label: "Coverage Multiplier", value: b.coverage_multiplier, sign: "×" },
+    { label: "Safe Profile Discount", value: b.safe_profile_discount, sign: "−" },
   ];
   return (
     <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5 mb-8">
@@ -30,19 +32,17 @@ function PremiumBreakdown({ calc }: { calc: PremiumCalculation }) {
           <div key={label} className="flex items-center justify-between text-sm">
             <span className="text-slate-400">{label}</span>
             <span className={sign === "−" ? "text-emerald-400" : "text-slate-300"}>
-              {sign} ₹{value}
+              {sign} ₹{typeof value === "number" ? value.toFixed(2) : value}
             </span>
           </div>
         ))}
         <div className="border-t border-slate-800 pt-2 mt-2 flex items-center justify-between">
-          <span className="font-bold text-white">Weekly Premium (Smart)</span>
-          <span className="font-display text-xl font-bold text-sky-400">₹{calc.weekly_premium}</span>
+          <span className="font-bold text-white">Weekly Premium</span>
+          <span className="font-display text-xl font-bold text-sky-400">
+            ₹{calc.weekly_premium}
+          </span>
         </div>
       </div>
-      <p className="mt-3 text-xs text-slate-500">
-        Recommended plan:{" "}
-        <span className="text-sky-400 font-medium capitalize">{calc.recommended_plan}</span>
-      </p>
     </div>
   );
 }
@@ -54,10 +54,12 @@ export default function PlansPage() {
   const [currentPolicy, setCurrentPolicy] = useState<Policy | null>(null);
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
   const [activating, setActivating] = useState<string | null>(null);
   const [success, setSuccess] = useState("");
 
   useEffect(() => {
+    setMounted(true);
     if (!isLoggedIn()) { router.push("/login"); return; }
     Promise.all([
       getCurrentUser(),
@@ -68,37 +70,41 @@ export default function PlansPage() {
       setPlans(p);
       setCurrentPolicy(pol);
       if (u) {
-        premiumApi.calculate(u.id).catch(() => MOCK_PREMIUM).then(setPremium);
+        const zone = u.work_zones?.[0] || "Zone A";
+        const shift = "evening";
+        premiumApi.calculate(zone, shift, "smart")
+          .then(setPremium)
+          .catch(() => setPremium(MOCK_PREMIUM));
       } else {
         setPremium(MOCK_PREMIUM);
       }
     }).finally(() => setLoading(false));
   }, []);
 
-  const handleActivate = async (planId: string) => {
-    setActivating(planId);
+  const handleActivate = async (planName: string) => {
+    setActivating(planName);
     try {
-      const pol = await premiumApi.activatePolicy(planId);
+      const zone = user?.work_zones?.[0] || "Zone A";
+      const pol = await premiumApi.activatePolicy(planName, zone, "evening");
       setCurrentPolicy(pol);
-      setSuccess(`${planId.charAt(0).toUpperCase() + planId.slice(1)} plan activated! You're covered this week.`);
+      setSuccess(`${planName.charAt(0).toUpperCase() + planName.slice(1)} plan activated! You're covered this week.`);
     } catch {
-      // Simulate success for demo
       setCurrentPolicy({
-        id: 1,
-        worker_id: user?.id || 1,
-        plan: planId,
+        id: "mock-id",
+        worker_id: user?.id?.toString() || "mock-worker",
+        plan: planName,
         status: "active",
         zone: user?.work_zones?.[0] || "Zone A",
-        activated_at: new Date().toISOString(),
-        expires_at: new Date(Date.now() + 7 * 86400000).toISOString(),
+        start_date: new Date().toISOString(),
+        end_date: new Date(Date.now() + 7 * 86400000).toISOString(),
       });
-      setSuccess(`${planId.charAt(0).toUpperCase() + planId.slice(1)} plan activated! You're covered this week.`);
+      setSuccess(`${planName.charAt(0).toUpperCase() + planName.slice(1)} plan activated! You're covered this week.`);
     } finally {
       setActivating(null);
     }
   };
 
-  if (loading) {
+  if (!mounted || loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="h-8 w-8 rounded-full border-2 border-sky-500 border-t-transparent animate-spin" />
@@ -106,8 +112,10 @@ export default function PlansPage() {
     );
   }
 
+  const displayPlans = plans.length > 0 ? plans : MOCK_PLANS;
+
   return (
-    <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 animate-fade-in">
+    <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
       <div className="mb-8 text-center">
         <div className="inline-flex items-center gap-2 rounded-full border border-sky-500/30 bg-sky-500/10 px-4 py-1.5 text-sm text-sky-400 mb-4">
           <Zap className="h-3.5 w-3.5" />
@@ -129,14 +137,14 @@ export default function PlansPage() {
       {premium && <PremiumBreakdown calc={premium} />}
 
       <div className="grid sm:grid-cols-3 gap-5">
-        {(plans.length > 0 ? plans : MOCK_PLANS).map((plan) => (
+        {displayPlans.map((plan) => (
           <PlanCard
-            key={plan.id}
+            key={plan.name}
             plan={plan}
-            recommended={plan.id === (premium?.recommended_plan || "smart")}
+            recommended={plan.name.toLowerCase() === "smart"}
             currentPlan={currentPolicy?.plan?.toLowerCase()}
             onActivate={handleActivate}
-            loading={activating === plan.id}
+            loading={activating === plan.name.toLowerCase()}
           />
         ))}
       </div>

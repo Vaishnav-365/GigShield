@@ -39,10 +39,10 @@ class PlanDetail(BaseModel):
 # --- Policy ---
 
 class PolicyActivateRequest(BaseModel):
-    plan: str                     # "lite", "smart", "pro"
-    zone: str
-    shift: str
-    weather_history_risk: float
+    plan: str
+    zone: Optional[str] = "Zone A"
+    shift: Optional[str] = "evening"
+    weather_history_risk: float = 0.5
 
 class PolicyResponse(BaseModel):
     id: int

@@ -18,6 +18,7 @@ def get_all_plans():
             "name": name,
             "protected_hours": config["protected_hours"],
             "max_payout": config["max_payout"],
+            "weekly_premium": config["base_weekly_premium"],
             "covered_triggers": config["covered_triggers"],
             "description": config["description"],
         })

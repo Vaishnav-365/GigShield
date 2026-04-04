@@ -68,11 +68,22 @@ export const authApi = {
       method: "POST",
       body: JSON.stringify(data),
     }),
-  login: (data: LoginPayload) =>
-    request<AuthResponse>("/api/auth/login", {
+  login: (data: LoginPayload) => {
+    const formData = new URLSearchParams();
+    formData.append("username", data.email);
+    formData.append("password", data.password);
+    return fetch(`${BASE_URL}/api/auth/login`, {
       method: "POST",
-      body: JSON.stringify(data),
-    }),
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: formData.toString(),
+    }).then(async (res) => {
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ detail: "Login failed" }));
+        throw new Error(err.detail || "Login failed");
+      }
+      return res.json() as Promise<AuthResponse>;
+    });
+  },
   me: () => request<UserProfile>("/api/auth/me"),
   updateProfile: (data: Partial<RegisterPayload>) =>
     request<UserProfile>("/api/auth/me/profile", {
@@ -84,43 +95,52 @@ export const authApi = {
 // ─── PREMIUM & PLANS ───────────────────────────────────────────────────────
 
 export interface PremiumCalculation {
-  base_premium: number;
-  zone_risk_load: number;
-  shift_risk_load: number;
-  coverage_multiplier: number;
-  safe_profile_discount: number;
+  plan: string;
   weekly_premium: number;
-  recommended_plan: string;
+  protected_hours: number;
+  max_payout: number;
+  covered_triggers: string[];
+  breakdown: {
+    base_premium: number;
+    zone_risk_load: number;
+    shift_risk_load: number;
+    coverage_multiplier: number;
+    safe_profile_discount: number;
+    final_premium: number;
+  };
+  recommended_plan?: string;
 }
 
 export interface Plan {
-  id: string;
   name: string;
-  weekly_premium: number;
   protected_hours: number;
-  payout_cap: number;
+  max_payout: number;
   covered_triggers: string[];
   description: string;
+  weekly_premium?: number;
+  payout_cap?: number;
 }
 
 export interface Policy {
-  id: number;
-  worker_id: number;
+  id: string;
+  worker_id: string;
   plan: string;
   status: string;
   zone: string;
-  activated_at: string;
-  expires_at: string;
+  start_date: string;
+  end_date: string;
 }
 
 export const premiumApi = {
-  calculate: (worker_id: number) =>
-    request<PremiumCalculation>(`/api/premium/calculate?worker_id=${worker_id}`),
-  plans: () => request<Plan[]>("/api/plans"),
-  activatePolicy: (plan: string) =>
+  calculate: (zone: string, shift: string, plan: string = "smart") =>
+    request<PremiumCalculation>(
+      `/api/premium/calculate?zone=${zone}&shift=${shift}&plan=${plan}`
+    ),
+  plans: () => request<Plan[]>("/api/policies/plans"),
+  activatePolicy: (plan: string, zone: string = "Zone A", shift: string = "evening") =>
     request<Policy>("/api/policies/activate", {
       method: "POST",
-      body: JSON.stringify({ plan }),
+      body: JSON.stringify({ plan, zone, shift, weather_history_risk: 0.5 }),
     }),
   myPolicy: () => request<Policy | null>("/api/policies/me"),
 };
@@ -146,22 +166,21 @@ export const triggerApi = {
 // ─── CLAIMS ───────────────────────────────────────────────────────────────
 
 export interface Claim {
-  id: number;
-  worker_id: number;
-  trigger_id: number;
+  id: string;
+  worker_id: string;
+  trigger_type: string;
+  zone: string;
   trust_score: number;
-  status: "green" | "amber" | "red" | "approved" | "rejected";
-  payout_amount: number;
+  trust_path: string;
+  status: string;
+  estimated_payout: number;
   created_at: string;
-  updated_at: string;
-  trigger_type?: string;
-  zone?: string;
 }
 
 export const claimApi = {
-  list: () => request<Claim[]>("/api/claims"),
-  get: (id: number) => request<Claim>(`/api/claims/${id}`),
-  updateStatus: (id: number, status: string) =>
+  list: () => request<Claim[]>("/api/claims/"),
+  get: (id: string) => request<Claim>(`/api/claims/${id}`),
+  updateStatus: (id: string, status: string) =>
     request<Claim>(`/api/claims/${id}/status`, {
       method: "PATCH",
       body: JSON.stringify({ status }),
@@ -172,31 +191,53 @@ export const claimApi = {
 
 export const MOCK_PLANS: Plan[] = [
   {
-    id: "lite",
     name: "Lite",
     weekly_premium: 49,
     protected_hours: 15,
-    payout_cap: 750,
+    max_payout: 750,
     covered_triggers: ["Heavy Rain", "Extreme Heat", "Platform Outage"],
     description: "Essential protection for occasional gig workers.",
   },
   {
-    id: "smart",
     name: "Smart",
     weekly_premium: 99,
     protected_hours: 30,
-    payout_cap: 1500,
+    max_payout: 1500,
     covered_triggers: ["Heavy Rain", "Extreme Heat", "Severe AQI", "Platform Outage", "Flood"],
     description: "Balanced coverage for regular delivery workers. Most popular.",
   },
   {
-    id: "pro",
     name: "Pro",
     weekly_premium: 179,
     protected_hours: 50,
-    payout_cap: 3000,
+    max_payout: 3000,
     covered_triggers: ["Heavy Rain", "Extreme Heat", "Severe AQI", "Platform Outage", "Flood", "Curfew"],
     description: "Maximum protection for full-time delivery professionals.",
+  },
+];
+
+export const MOCK_CLAIMS: Claim[] = [
+  {
+    id: "mock-claim-1",
+    worker_id: "mock-worker-1",
+    trigger_type: "heavy_rain",
+    zone: "Zone A",
+    trust_score: 0.91,
+    trust_path: "green",
+    status: "approved",
+    estimated_payout: 420,
+    created_at: new Date(Date.now() - 3500000).toISOString(),
+  },
+  {
+    id: "mock-claim-2",
+    worker_id: "mock-worker-1",
+    trigger_type: "platform_outage",
+    zone: "Zone B",
+    trust_score: 0.55,
+    trust_path: "amber",
+    status: "pending",
+    estimated_payout: 0,
+    created_at: new Date(Date.now() - 7000000).toISOString(),
   },
 ];
 
@@ -233,39 +274,18 @@ export const MOCK_TRIGGERS: TriggerEvent[] = [
   },
 ];
 
-export const MOCK_CLAIMS: Claim[] = [
-  {
-    id: 1,
-    worker_id: 1,
-    trigger_id: 1,
-    trust_score: 0.91,
-    status: "approved",
-    payout_amount: 420,
-    created_at: new Date(Date.now() - 3500000).toISOString(),
-    updated_at: new Date(Date.now() - 3400000).toISOString(),
-    trigger_type: "heavy_rain",
-    zone: "Zone A",
-  },
-  {
-    id: 2,
-    worker_id: 1,
-    trigger_id: 2,
-    trust_score: 0.55,
-    status: "amber",
-    payout_amount: 0,
-    created_at: new Date(Date.now() - 7000000).toISOString(),
-    updated_at: new Date(Date.now() - 6900000).toISOString(),
-    trigger_type: "platform_outage",
-    zone: "Zone B",
-  },
-];
-
 export const MOCK_PREMIUM: PremiumCalculation = {
-  base_premium: 60,
-  zone_risk_load: 15,
-  shift_risk_load: 12,
-  coverage_multiplier: 20,
-  safe_profile_discount: 8,
+  plan: "smart",
   weekly_premium: 99,
-  recommended_plan: "smart",
+  protected_hours: 20,
+  max_payout: 1200,
+  covered_triggers: ["heavy_rain", "flood", "extreme_heat", "bad_aqi"],
+  breakdown: {
+    base_premium: 60,
+    zone_risk_load: 15,
+    shift_risk_load: 12,
+    coverage_multiplier: 1.0,
+    safe_profile_discount: 8,
+    final_premium: 99,
+  },
 };

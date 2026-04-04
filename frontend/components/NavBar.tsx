@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { Shield, LayoutDashboard, FileText, Zap, Settings, LogOut, Menu, X } from "lucide-react";
+import { Shield, LayoutDashboard, FileText, Settings, LogOut, Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { isLoggedIn, logout, getCurrentUser } from "@/lib/auth";
 import { UserProfile } from "@/lib/api";
@@ -20,23 +20,43 @@ const adminLinks = [
 export default function NavBar() {
   const [open, setOpen] = useState(false);
   const [user, setUser] = useState<UserProfile | null>(null);
+  const [mounted, setMounted] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
+    setMounted(true);
     if (isLoggedIn()) {
       getCurrentUser().then(setUser);
     }
   }, [pathname]);
 
+  if (!mounted) {
+    return (
+      <nav className="sticky top-0 z-50 border-b border-slate-800 bg-slate-950/90 backdrop-blur-md">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex h-16 items-center justify-between">
+            <Link href="/" className="flex items-center gap-2.5">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-500 shadow-lg shadow-sky-500/30">
+                <Shield className="h-4 w-4 text-white" strokeWidth={2.5} />
+              </div>
+              <span className="font-display text-lg font-bold tracking-tight text-white">
+                Gig<span className="text-sky-400">Shield</span>
+              </span>
+            </Link>
+          </div>
+        </div>
+      </nav>
+    );
+  }
+
+  const isAuth = isLoggedIn();
   const links = [...workerLinks, ...(user?.is_admin ? adminLinks : [])];
 
   const handleLogout = () => {
     logout();
     router.push("/login");
   };
-
-  const isAuth = isLoggedIn();
 
   return (
     <nav className="sticky top-0 z-50 border-b border-slate-800 bg-slate-950/90 backdrop-blur-md">
@@ -45,7 +65,7 @@ export default function NavBar() {
           {/* Logo */}
           <Link href={isAuth ? "/dashboard" : "/"} className="flex items-center gap-2.5 group">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-500 shadow-lg shadow-sky-500/30 group-hover:bg-sky-400 transition-colors">
-              <Shield className="h-4.5 w-4.5 text-white" strokeWidth={2.5} />
+              <Shield className="h-4 w-4 text-white" strokeWidth={2.5} />
             </div>
             <span className="font-display text-lg font-bold tracking-tight text-white">
               Gig<span className="text-sky-400">Shield</span>

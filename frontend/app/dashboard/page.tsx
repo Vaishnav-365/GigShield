@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
-  Shield, Zap, TrendingUp, AlertTriangle, ChevronRight,
+  Shield, Zap, AlertTriangle, ChevronRight,
   CheckCircle, Clock, IndianRupee
 } from "lucide-react";
 import { getCurrentUser, isLoggedIn } from "@/lib/auth";
@@ -42,8 +42,10 @@ export default function DashboardPage() {
   const [triggers, setTriggers] = useState<TriggerEvent[]>([]);
   const [claims, setClaims] = useState<Claim[]>([]);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     if (!isLoggedIn()) { router.push("/login"); return; }
     Promise.all([
       getCurrentUser(),
@@ -58,7 +60,7 @@ export default function DashboardPage() {
     }).finally(() => setLoading(false));
   }, []);
 
-  if (loading) {
+  if (!mounted || loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="flex flex-col items-center gap-3">
@@ -71,19 +73,19 @@ export default function DashboardPage() {
 
   const totalPayout = claims
     .filter(c => c.status === "approved" || c.status === "green")
-    .reduce((s, c) => s + c.payout_amount, 0);
+    .reduce((s, c) => s + (c.estimated_payout || 0), 0);
 
-  const activeClaims = claims.filter(c => c.status === "amber").length;
+  const activeClaims = claims.filter(c => c.status === "amber" || c.status === "pending").length;
   const myZoneTriggers = triggers.filter(t =>
     user?.work_zones?.some(z => z === t.zone) && t.is_active
   );
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 animate-fade-in">
+    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
       {/* Greeting */}
       <div className="mb-8">
         <h1 className="font-display text-3xl font-bold text-white">
-          Good evening, {user?.full_name?.split(" ")[0] || "Worker"} 👋
+          Hello, {user?.full_name?.split(" ")[0] || "Worker"}
         </h1>
         <p className="mt-1 text-slate-400">
           {user?.platform && `${user.platform} · `}
@@ -122,14 +124,14 @@ export default function DashboardPage() {
         <StatCard
           label="Policy Status"
           value={policy ? `${policy.plan} Plan` : "No Plan"}
-          sub={policy ? `Active until ${new Date(policy.expires_at).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}` : "Browse plans →"}
+          sub={policy ? `Active until ${new Date(policy.end_date).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}` : "Browse plans →"}
           icon={Shield}
           color="bg-sky-500/15 text-sky-400"
         />
         <StatCard
           label="Total Payout"
           value={`₹${totalPayout.toLocaleString()}`}
-          sub="This month"
+          sub="This week"
           icon={IndianRupee}
           color="bg-emerald-500/15 text-emerald-400"
         />
@@ -165,7 +167,7 @@ export default function DashboardPage() {
                   <Shield className="h-7 w-7 text-sky-400" />
                 </div>
                 <div>
-                  <p className="font-display text-xl font-bold text-white">{policy.plan} Plan</p>
+                  <p className="font-display text-xl font-bold text-white capitalize">{policy.plan} Plan</p>
                   <div className="flex items-center gap-1.5 mt-1">
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
                     <span className="text-sm text-emerald-400 font-medium">Active</span>
@@ -176,8 +178,8 @@ export default function DashboardPage() {
                 {[
                   { label: "Zone", value: policy.zone },
                   { label: "Status", value: policy.status },
-                  { label: "Activated", value: new Date(policy.activated_at).toLocaleDateString("en-IN", { day: "numeric", month: "short" }) },
-                  { label: "Expires", value: new Date(policy.expires_at).toLocaleDateString("en-IN", { day: "numeric", month: "short" }) },
+                  { label: "Start", value: new Date(policy.start_date).toLocaleDateString("en-IN", { day: "numeric", month: "short" }) },
+                  { label: "Expires", value: new Date(policy.end_date).toLocaleDateString("en-IN", { day: "numeric", month: "short" }) },
                 ].map(({ label, value }) => (
                   <div key={label} className="rounded-xl bg-slate-800 px-4 py-3">
                     <p className="text-xs text-slate-500">{label}</p>

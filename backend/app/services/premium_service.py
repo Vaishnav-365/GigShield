@@ -24,6 +24,7 @@ PLAN_CONFIG = {
         "coverage_multiplier": 0.7,
         "protected_hours": 10,
         "max_payout": 500.0,
+        "base_weekly_premium": 49,
         "covered_triggers": ["heavy_rain", "flood"],
         "description": "Basic protection for light workers"
     },
@@ -31,6 +32,7 @@ PLAN_CONFIG = {
         "coverage_multiplier": 1.0,
         "protected_hours": 20,
         "max_payout": 1200.0,
+        "base_weekly_premium": 99,
         "covered_triggers": ["heavy_rain", "flood", "extreme_heat", "bad_aqi"],
         "description": "Balanced protection — recommended for most workers"
     },
@@ -38,6 +40,7 @@ PLAN_CONFIG = {
         "coverage_multiplier": 1.4,
         "protected_hours": 35,
         "max_payout": 2500.0,
+        "base_weekly_premium": 179,
         "covered_triggers": ["heavy_rain", "flood", "extreme_heat", "bad_aqi", "platform_outage"],
         "description": "Full protection including platform outages"
     },

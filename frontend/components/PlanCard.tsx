@@ -33,8 +33,8 @@ const PLAN_STYLES: Record<string, { accent: string; ring: string; badge: string;
 };
 
 export default function PlanCard({ plan, recommended, currentPlan, onActivate, loading }: Props) {
-  const s = PLAN_STYLES[plan.id] || PLAN_STYLES.lite;
-  const isActive = currentPlan === plan.id;
+  const s = PLAN_STYLES[plan.name.toLowerCase()] || PLAN_STYLES.lite;
+  const isActive = currentPlan === plan.name.toLowerCase();
 
   return (
     <div
@@ -49,7 +49,7 @@ export default function PlanCard({ plan, recommended, currentPlan, onActivate, l
       )}
 
       <div className="mb-4">
-        <h3 className={`font-display text-xl font-bold ${s.accent}`}>{plan.name}</h3>
+        <h3 className={`font-display text-xl font-bold capitalize ${s.accent}`}>{plan.name}</h3>
         <p className="mt-1 text-sm text-slate-400">{plan.description}</p>
       </div>
 
@@ -63,7 +63,7 @@ export default function PlanCard({ plan, recommended, currentPlan, onActivate, l
             <span className="text-white font-medium">{plan.protected_hours}h</span> protected
           </span>
           <span>
-            Up to <span className="text-white font-medium">₹{plan.payout_cap.toLocaleString()}</span> payout
+            Up to <span className="text-white font-medium">₹{plan.max_payout?.toLocaleString()}</span> payout
           </span>
         </div>
       </div>
@@ -84,7 +84,7 @@ export default function PlanCard({ plan, recommended, currentPlan, onActivate, l
         </div>
       ) : (
         <button
-          onClick={() => onActivate?.(plan.id)}
+          onClick={() => onActivate?.(plan.name.toLowerCase())}
           disabled={loading}
           className={`w-full rounded-xl py-3 text-sm font-semibold transition-all ${
             recommended
