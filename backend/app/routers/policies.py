@@ -1,20 +1,17 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 import datetime
-
 from app.database import get_db
 from app.models.user import User
 from app.models.policy import Policy, PremiumLog
 from app.schemas.policy import PolicyActivateRequest, PolicyResponse, PlanDetail
 from app.services.premium_service import calculate_premium, PLAN_CONFIG
-from app.routers.auth import get_current_user
+from app.routers.auth import get_current_user_dep
 
 router = APIRouter(prefix="/api/policies", tags=["Policies"])
 
-
 @router.get("/plans")
 def get_all_plans():
-    """Return all 3 plan tiers with details — no auth needed."""
     plans = []
     for name, config in PLAN_CONFIG.items():
         plans.append({
@@ -26,17 +23,15 @@ def get_all_plans():
         })
     return plans
 
-
-@router.post("/activate", response_model=PolicyResponse)
+@router.post("/activate", response_model=None)
 def activate_policy(
     req: PolicyActivateRequest,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user_dep),
     db: Session = Depends(get_db)
 ):
     if req.plan not in PLAN_CONFIG:
         raise HTTPException(status_code=400, detail="Plan must be lite, smart, or pro")
 
-    # Cancel any existing active policy
     existing = db.query(Policy).filter(
         Policy.worker_id == current_user.id,
         Policy.status == "active"
@@ -45,7 +40,6 @@ def activate_policy(
         existing.status = "cancelled"
         db.commit()
 
-    # Calculate premium for this worker
     result = calculate_premium(
         zone=req.zone,
         shift=req.shift,
@@ -54,7 +48,6 @@ def activate_policy(
         plan=req.plan
     )
 
-    # Save policy
     now = datetime.datetime.utcnow()
     policy = Policy(
         worker_id=current_user.id,
@@ -69,9 +62,8 @@ def activate_policy(
         end_date=now + datetime.timedelta(days=7),
     )
     db.add(policy)
-    db.flush()   # get policy.id before logging
+    db.flush()
 
-    # Save premium log
     log = PremiumLog(
         policy_id=policy.id,
         worker_id=current_user.id,
@@ -86,10 +78,9 @@ def activate_policy(
     db.refresh(policy)
     return policy
 
-
-@router.get("/me", response_model=PolicyResponse)
+@router.get("/me", response_model=None)
 def my_policy(
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user_dep),
     db: Session = Depends(get_db)
 ):
     policy = db.query(Policy).filter(
